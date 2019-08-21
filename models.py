@@ -12,7 +12,6 @@ class User(UserMixin, Model):
     email = CharField()
     password = CharField()
 
-
     class Meta:
         database = DATABASE
 
