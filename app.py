@@ -3,10 +3,12 @@ from flask_cors import CORS
 from flask_login import LoginManager
 import models
 import requests
+from playhouse.shortcuts import model_to_dict # from peewe
+import json
 
 
 from api.user import user
-
+# from api.games import game
 
 DEBUG = True
 PORT = 8000
@@ -28,9 +30,11 @@ def load_user(userid):
 
 
 CORS(user, origins=['http://localhost:3000'], supports_credentials=True)
+CORS(app, origins=['http://localhost:3000'], supports_credentials=True)
+# CORS(game, origins=['http://localhost:3000'], supports_credentials=True)
 
 app.register_blueprint(user)
-
+# app.register_blueprint(game)
 
 @app.before_request
 def before_request():
@@ -39,19 +43,55 @@ def before_request():
     g.db.connect()
 
 
-@app.after_request  # WE OPEN AND CLOSE TO MANAGE PULL CONNECTIONS SO DONT OL
+@app.after_request
 def after_request(response):
     ''' Close the database connection after each request '''
     g.db.close()
     return response
 
 
-@app.route('/')
-def index():    # can name this method whatever
-    r = requests.post('https://api-v3.igdb.com/games/', data= "fields name, popularity; sort popularity desc;",
+@app.route('/games', methods=["POST", "GET"])
+def index():
+    # form_data = request.form_data
+    # search = form_data['searh']
+        # r = requests.post('https://api-v3.igdb.com/games/', data=
+        # "fields name, popularity, cover, summary, aggregated_rating; serach ${search} popularity desc; limit 50;",
+        # headers = {"user-key":"2c904db2f8c0bceb80aae9b04132521b"})
+    r = requests.post('https://api-v3.igdb.com/games/', data=
+    "fields name, popularity, cover, summary, aggregated_rating, release_dates; sort popularity desc; limit 50;",
     headers = {"user-key":"2c904db2f8c0bceb80aae9b04132521b"})
 
-    return jsonify(data=r.json())
+    print (jsonify(r.json()), '<+++ this is games')
+    # for game in games:
+
+    return jsonify(games=r.json())
+
+@app.route('/playstation', methods=["POST", "GET"])
+def playstation():
+    r = requests.post('https://api-v3.igdb.com/release_dates/', data=
+    "fields game; where game.platforms = 48 & date > 1566600380; sort date asc;",
+    headers = {"user-key":"2c904db2f8c0bceb80aae9b04132521b"})
+
+    gamelist = []
+    print(r.json())
+    for game in r.json():
+        gamelist.append(str(game["game"]))
+
+    g = requests.post('https://api-v3.igdb.com/games/', data=
+    "fields name, cover, summary, aggregated_rating, release_dates.human; where id = (" + ','.join(gamelist) + ");",
+    headers = {"user-key":"2c904db2f8c0bceb80aae9b04132521b"})
+
+    coverlist = []
+    for game in g.json():
+        coverlist.append(str(game["id"]))
+
+    p = requests.post('https://api-v3.igdb.com/covers/', data=
+    "fields url; where game = (" + ','.join(coverlist) + ");",
+    headers = {"user-key":"2c904db2f8c0bceb80aae9b04132521b"})
+
+    print(p.json(), "all the covers boiiiiiiiiiiiiiii")
+    # print(g.json(), "all the game boiiiiiiii")
+    return jsonify(playstation=p.json())
 
 
 if __name__ == '__main__':

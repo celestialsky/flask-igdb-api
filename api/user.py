@@ -1,81 +1,84 @@
-# this is like controller from express
-# JSONIFY UR BLUEPRINTS
-
 import models
-# models, models.Dog, models.User
 
 import os
 import sys
 import secrets
 from PIL import Image
 
-
 from flask import Blueprint, request, jsonify, url_for, send_file
-# Blueprint - record operations to execute (their controllers)
-
 from flask_bcrypt import generate_password_hash, check_password_hash
 from flask_login import login_user, current_user
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
 from playhouse.shortcuts import model_to_dict
 
-# first argument is blueprint name, second is import name, third is what every
-# route in the blueprint should start with, much like
-# app.use('/api/v1', fruitsCtonroller)
-
-# will have to be registered in the app.py file
-user = Blueprint('users', 'user', url_prefix='/user')
+user = Blueprint('user', 'user', url_prefix='/user')
 
 
 @user.route('/register', methods=["POST"])
 def register():
-    # this is how we grab the image being sent over
-    # pay_file = request.files
-    # this has the form info in the dict
-    # change equest object into a dictionary so we can see inside it
+    pay_file = request.files
     payload = request.form.to_dict()
-    # dict_file = pay_file.to_dict()
+    dict_file = pay_file.to_dict()
 
     print(payload, "<==== this is the payload")
-    # print(dict_file)
+    print(dict_file)
 
-    payload['email'].lower()  # make emails lower
+    payload['email'].lower()
     try:
-        # check to see if email exists, if it does let user know
-        models.User.get(models.User.email == payload['email'])  # query to find
-        # user by email
-        # if models.User.get exsits then respond to the client
-        return jsonify(data={}, status={"code": 401, "message": "a user with the same name or email exists"})
-    except models.DoesNotExist:  # boolean on the model
-        # otherwise create and regiser the user
-        # hash password
+        models.User.get(models.User.email == payload['email'])
+        return jsonify(status={"code": 401, "message": "a user with the same name or email exists"})
+    except models.DoesNotExist:
         payload['password'] = generate_password_hash(payload['password'])
-        # function that will save the image as a static asset in static folder
-
-        # save_picture is hlper function we will create
-
-        # add image property to payload dictionary and save the file_path of img
-        # in the db
-
-
-        # create the row in the sql table
-        user = models.User.create(**payload)  # the spread operator in js
-        print(type(user))  # >class User user is an instance of class
-        # same as aobve this is longhand V
-        # user = models.User.create(username=payload['username'], password=payload['password'])
-
-        # start the user session
-        login_user(user)  # login_user is from flask_login, set userid in session
-
-
-
-        # we cant send back a class we can only send back dicts, lists
+        user = models.User.create(**payload)
+        print(type(user))
+        login_user(user)
         user_dict = model_to_dict(user)
-        # make our response object jsonify-able
-        # lists, hashs, simple datatype like number bools,
-        # NO class or instance of class
         print(user_dict)
         print(type(user_dict))
-
-        # remove the password, client doesn't need to know
         del user_dict['password']
 
-        return jsonify(data=user_dict, status={"code": 201, "message": "Success"})
+        return jsonify(status={"code": 201, "message": "Success"})
+
+
+@user.route('/login', methods=["POST"])
+def login():
+    payload = request.get_json()
+    print(payload, '<-- this is payload')
+
+    try:
+        user = models.User.get(models.User.email == payload['email'])
+        user_dict = model_to_dict(user)
+        if(check_password_hash(user_dict['password'], payload['password'])):
+            del user_dict['password']
+            login_user(user)
+            print(user, '<--- this is user')
+
+            return jsonify(data=user_dict, status={"code": 200, "message": "Success"})
+        else:
+            return jsonify(data={}, status={"code": 401,
+            "message": "Username or Password is incorrect"})
+    except models.DoesNotExist:
+        return jsonify(data={}, status={"code": 401,
+        "message": "Username or Password is incorrect"})
+
+
+@user.route('<id>/clients', methods=["GET"])
+def get_user_clients(id):
+    user = models.User.get_by_id(id)
+    print(user.clients, ".clientsss")
+
+    clients = [model_to_dict(client) for client in user.clients]
+
+    return jsonify(data=clients, status={"code": 201, "message": "Success"})
+
+# @user.route('/logout', methods=['GET'])
+# @login_required
+# def logout():
+#     """Logout the current user."""
+#     user = current_user
+#     user.authenticated = False
+#     db.session.add(user)
+#     db.session.commit()
+#     logout_user()
+#     return render_template("logout.html")
