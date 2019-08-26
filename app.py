@@ -91,7 +91,24 @@ def playstation():
 
     print(p.json(), "all the covers boiiiiiiiiiiiiiii")
     # print(g.json(), "all the game boiiiiiiii")
-    return jsonify(playstation=p.json())
+    return jsonify(images=p.json(), games=g.json())
+
+# @app.route('/xbox', methods=["POST", "GET"])
+# def playstation():
+#     r = requests.post('https://api-v3.igdb.com/release_dates/', data=
+#     "fields game; where game.platforms = 49 & date > 1566600380; sort date asc;",
+#     headers = {"user-key":"2c904db2f8c0bceb80aae9b04132521b"})
+#
+#     gamelist = []
+#     print(r.json())
+#     for game in r.json():
+#         gamelist.append(str(game["game"]))
+#
+#     g = requests.post('https://api-v3.igdb.com/games/', data=
+#     "fields name, cover, summary, aggregated_rating, release_dates.human; where id = (" + ','.join(gamelist) + ");",
+#     headers = {"user-key":"2c904db2f8c0bceb80aae9b04132521b"})
+#
+#     return jsonify(xbox=g.json())
 
 
 if __name__ == '__main__':
