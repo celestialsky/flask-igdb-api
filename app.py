@@ -91,24 +91,92 @@ def playstation():
 
     print(p.json(), "all the covers boiiiiiiiiiiiiiii")
     # print(g.json(), "all the game boiiiiiiii")
+    return jsonify(images=p.json(), games=g.json(), date=r.json())
+
+
+@app.route('/xbox', methods=["POST", "GET"])
+def xbox():
+    r = requests.post('https://api-v3.igdb.com/release_dates/', data=
+    "fields game; where game.platforms = 49 & date > 1566600380; sort date asc;",
+    headers = {"user-key":"2c904db2f8c0bceb80aae9b04132521b"})
+
+    gamelist = []
+    print(r.json())
+    for game in r.json():
+        gamelist.append(str(game["game"]))
+
+    g = requests.post('https://api-v3.igdb.com/games/', data=
+    "fields name, cover, summary, aggregated_rating, release_dates.human; where id = (" + ','.join(gamelist) + ");",
+    headers = {"user-key":"2c904db2f8c0bceb80aae9b04132521b"})
+
+    coverlist = []
+    for game in g.json():
+        coverlist.append(str(game["id"]))
+
+    p = requests.post('https://api-v3.igdb.com/covers/', data=
+    "fields url; where game = (" + ','.join(coverlist) + ");",
+    headers = {"user-key":"2c904db2f8c0bceb80aae9b04132521b"})
+
+    print(p.json(), "all the covers boiiiiiiiiiiiiiii")
+    # print(g.json(), "all the game boiiiiiiii")
     return jsonify(images=p.json(), games=g.json())
 
-# @app.route('/xbox', methods=["POST", "GET"])
-# def playstation():
-#     r = requests.post('https://api-v3.igdb.com/release_dates/', data=
-#     "fields game; where game.platforms = 49 & date > 1566600380; sort date asc;",
-#     headers = {"user-key":"2c904db2f8c0bceb80aae9b04132521b"})
-#
-#     gamelist = []
-#     print(r.json())
-#     for game in r.json():
-#         gamelist.append(str(game["game"]))
-#
-#     g = requests.post('https://api-v3.igdb.com/games/', data=
-#     "fields name, cover, summary, aggregated_rating, release_dates.human; where id = (" + ','.join(gamelist) + ");",
-#     headers = {"user-key":"2c904db2f8c0bceb80aae9b04132521b"})
-#
-#     return jsonify(xbox=g.json())
+
+@app.route('/pc', methods=["POST", "GET"])
+def pc():
+    r = requests.post('https://api-v3.igdb.com/release_dates/', data=
+    "fields game, human; where game.platforms = 6 & date > 1566600380; sort date asc;",
+    headers = {"user-key":"2c904db2f8c0bceb80aae9b04132521b"})
+
+    gamelist = []
+    print(r.json())
+    for game in r.json():
+        gamelist.append(str(game["game"]))
+
+    g = requests.post('https://api-v3.igdb.com/games/', data=
+    "fields name, cover, summary, aggregated_rating, release_dates.human; where id = (" + ','.join(gamelist) + ");",
+    headers = {"user-key":"2c904db2f8c0bceb80aae9b04132521b"})
+
+    coverlist = []
+    for game in g.json():
+        coverlist.append(str(game["id"]))
+
+    p = requests.post('https://api-v3.igdb.com/covers/', data=
+    "fields url; where game = (" + ','.join(coverlist) + ");",
+    headers = {"user-key":"2c904db2f8c0bceb80aae9b04132521b"})
+
+    print(p.json(), "all the covers boiiiiiiiiiiiiiii")
+    # print(g.json(), "all the game boiiiiiiii")
+    return jsonify(images=p.json(), games=g.json())
+
+
+@app.route('/nintendo', methods=["POST", "GET"])
+def nintendo():
+    r = requests.post('https://api-v3.igdb.com/release_dates/', data=
+    "fields game, human; where game.platforms = 130 & date > 1566600380; sort date asc;",
+    headers = {"user-key":"2c904db2f8c0bceb80aae9b04132521b"})
+
+    gamelist = []
+    print(r.json())
+    for game in r.json():
+        gamelist.append(str(game["game"]))
+
+    g = requests.post('https://api-v3.igdb.com/games/', data=
+    "fields name, cover, summary, aggregated_rating, release_dates.human; where id = (" + ','.join(gamelist) + ");",
+    headers = {"user-key":"2c904db2f8c0bceb80aae9b04132521b"})
+
+    coverlist = []
+    for game in g.json():
+        coverlist.append(str(game["id"]))
+
+    p = requests.post('https://api-v3.igdb.com/covers/', data=
+    "fields url; where game = (" + ','.join(coverlist) + ");",
+    headers = {"user-key":"2c904db2f8c0bceb80aae9b04132521b"})
+
+    print(p.json(), "all the covers boiiiiiiiiiiiiiii")
+    # print(g.json(), "all the game boiiiiiiii")
+    return jsonify(images=p.json(), games=g.json())
+
 
 
 if __name__ == '__main__':
