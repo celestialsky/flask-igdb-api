@@ -171,6 +171,14 @@ def nintendo():
 
     return jsonify(images=p.json(), games=g.json())
 
+@app.route('/search', methods=["POST"])
+def search():
+    query = request.form.to_dict()
+    r = requests.post('https://api-v3.igdb.com/search', data=
+    "fields *; search "'" + query + "'";",
+    headers = {"user-key":"2c904db2f8c0bceb80aae9b04132521b"})
+
+    return jsonify(query = r.json())
 
 
 if 'ON_HEROKU' in os.environ:
