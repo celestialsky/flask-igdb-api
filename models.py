@@ -1,14 +1,15 @@
-from peewee import * # import everything from peewe
-from flask_login import UserMixin # special mini class, that we can
-# inherit from that gives us special properties to help create sessions
-import datetime # python module to help deal with dates
+from peewee import *
+from flask_login import UserMixin
+import datetime
+import os
+from playhouse.db_url import connect
 
-
-DATABASE = SqliteDatabase('vid_games.sqlite')
+DATABASE = connect(os.environ.get('DATABASE_URL'))
+# DATABASE = SqliteDatabase('vid_games.sqlite')
 
 
 class User(UserMixin, Model):
-    username = CharField() # can pass it unique=True
+    username = CharField()
     email = CharField()
     password = CharField()
 

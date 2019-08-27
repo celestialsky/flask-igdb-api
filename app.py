@@ -3,8 +3,9 @@ from flask_cors import CORS
 from flask_login import LoginManager
 import models
 import requests
-from playhouse.shortcuts import model_to_dict # from peewe
+from playhouse.shortcuts import model_to_dict
 import json
+import os
 
 
 from api.user import user
@@ -52,19 +53,14 @@ def after_request(response):
 
 @app.route('/games', methods=["POST", "GET"])
 def index():
-    # form_data = request.form_data
-    # search = form_data['searh']
-        # r = requests.post('https://api-v3.igdb.com/games/', data=
-        # "fields name, popularity, cover, summary, aggregated_rating; serach ${search} popularity desc; limit 50;",
-        # headers = {"user-key":"2c904db2f8c0bceb80aae9b04132521b"})
     r = requests.post('https://api-v3.igdb.com/games/', data=
     "fields name, popularity, cover, summary, aggregated_rating, release_dates; sort popularity desc; limit 50;",
     headers = {"user-key":"2c904db2f8c0bceb80aae9b04132521b"})
 
     print (jsonify(r.json()), '<+++ this is games')
-    # for game in games:
 
     return jsonify(games=r.json())
+
 
 @app.route('/playstation', methods=["POST", "GET"])
 def playstation():
@@ -173,10 +169,25 @@ def nintendo():
     "fields url; where game = (" + ','.join(coverlist) + ");",
     headers = {"user-key":"2c904db2f8c0bceb80aae9b04132521b"})
 
-    print(p.json(), "all the covers boiiiiiiiiiiiiiii")
-    # print(g.json(), "all the game boiiiiiiii")
     return jsonify(images=p.json(), games=g.json())
 
+@app.route('/search', methods=["POST"])
+def search():
+    query = request.form.to_dict()
+    print(query['data'])
+    query_string = "fields *;search " + "".join(query['data'].split()) + "; limit 50;"
+
+    r = requests.post('https://api-v3.igdb.com/search', data=
+    query_string,
+    headers = {"user-key":"2c904db2f8c0bceb80aae9b04132521b"})
+
+    print(r.json())
+    return jsonify(data=r.json())
+
+
+if 'ON_HEROKU' in os.environ:
+    print('hitting ')
+    models.initialize()
 
 
 if __name__ == '__main__':
