@@ -171,18 +171,18 @@ def nintendo():
 
     return jsonify(images=p.json(), games=g.json())
 
-@app.route('/search', methods=["POST"])
-def search():
-    query = request.form.to_dict()
-    print(query['data'])
-    query_string = "fields *;search " + "".join(query['data'].split()) + "; limit 50;"
-
-    r = requests.post('https://api-v3.igdb.com/search', data=
-    query_string,
-    headers = {"user-key":"2c904db2f8c0bceb80aae9b04132521b"})
-
-    print(r.json())
-    return jsonify(data=r.json())
+# @app.route('/search', methods=["POST"])
+# def search():
+#     query = request.form.to_dict()
+#     print(query['data'])
+#     query_string = "fields *;search " + "".join(query['data'].split()) + "; limit 50;"
+#
+#     r = requests.post('https://api-v3.igdb.com/search', data=
+#     query_string,
+#     headers = {"user-key":"2c904db2f8c0bceb80aae9b04132521b"})
+#
+#     print(r.json())
+#     return jsonify(data=r.json())
 
 
 if 'ON_HEROKU' in os.environ:
