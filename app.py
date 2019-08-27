@@ -30,8 +30,8 @@ def load_user(userid):
         return None
 
 
-CORS(user, origins=['http://localhost:3000'], supports_credentials=True)
-CORS(app, origins=['http://localhost:3000'], supports_credentials=True)
+CORS(user, origins=['http://localhost:3000', "https://vidyagames.herokuapp.com"], supports_credentials=True)
+CORS(app, origins=['http://localhost:3000', "https://vidyagames.herokuapp.com"], supports_credentials=True)
 # CORS(game, origins=['http://localhost:3000'], supports_credentials=True)
 
 app.register_blueprint(user)
@@ -171,18 +171,6 @@ def nintendo():
 
     return jsonify(images=p.json(), games=g.json())
 
-# @app.route('/search', methods=["POST"])
-# def search():
-#     query = request.form.to_dict()
-#     print(query['data'])
-#     query_string = "fields *;search " + "".join(query['data'].split()) + "; limit 50;"
-#
-#     r = requests.post('https://api-v3.igdb.com/search', data=
-#     query_string,
-#     headers = {"user-key":"2c904db2f8c0bceb80aae9b04132521b"})
-#
-#     print(r.json())
-#     return jsonify(data=r.json())
 
 
 if 'ON_HEROKU' in os.environ:
